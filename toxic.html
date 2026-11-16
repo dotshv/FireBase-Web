@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>Ayush Admin Panel · Toxic Security Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-subtle: #f1f5f9;
+      --border: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-sub: #94a3b8;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-subtle: #eff6ff;
+      --success: #10b981;
+      --success-subtle: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-subtle: #fffbeb;
+      --danger: #ef4444;
+      --danger-subtle: #fef2f2;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      --shadow-xl: 0 20px 35px -10px rgba(15, 23, 42, 0.1);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(226, 232, 240, 0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(226, 232, 240, 0.6) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.7;
+    }
+
+    /* Ambient background glows */
+    .ambient-glow-1 {
+      position: fixed;
+      top: -150px;
+      right: 10%;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.08), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -150px;
+      left: 5%;
+      width: 550px;
+      height: 550px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.06), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Modern Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.2s ease;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .badge-primary { background: var(--primary-subtle); color: var(--primary); border: 1px solid #bfdbfe; }
+    .badge-success { background: var(--success-subtle); color: #059669; border: 1px solid #a7f3d0; }
+    .badge-warning { background: var(--warning-subtle); color: #b45309; border: 1px solid #fde68a; }
+    .badge-danger { background: var(--danger-subtle); color: #dc2626; border: 1px solid #fecaca; }
+    .badge-neutral { background: var(--surface-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      font-family: inherit;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      border-color: #1e40af;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-main);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover {
+      background: var(--surface-subtle);
+      border-color: var(--border-hover);
+    }
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+    .btn-danger {
+      background: var(--danger-subtle);
+      color: var(--danger);
+      border-color: #fecaca;
+    }
+    .btn-danger:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
+    /* Inputs */
+    .input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text-main);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .input::placeholder { color: var(--text-sub); }
+
+    /* Login Screen Container */
+    #login-view {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      z-index: 20;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 440px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 38px 32px;
+      box-shadow: var(--shadow-xl);
+      text-align: center;
+    }
+    .login-badge {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.35);
+    }
+    .login-box h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .login-box p.subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      margin-bottom: 26px;
+    }
+
+    /* Admin View */
+    #admin-view {
+      display: none;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 900;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+    .nav-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+    .nav-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-num {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .search-wrap {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-sub);
+      pointer-events: none;
+    }
+    .search-wrap input {
+      padding-left: 42px;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      background: var(--surface-subtle);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Vault Table */
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      background: var(--surface-subtle);
+      padding: 14px 18px;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background-color: #fafbfc;
+    }
+    .url-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+      word-break: break-all;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .url-link {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .url-link:hover {
+      text-decoration: underline;
+    }
+    .key-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--surface-subtle);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .actions-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .empty-icon {
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: var(--surface-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-sub);
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-xl);
+      padding: 28px;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-sub);
+      padding: 4px;
+    }
+    .modal-close:hover { color: var(--text-main); }
+
+    /* Security lockout banner */
+    .lockout-alert {
+      display: none;
+      background: var(--danger-subtle);
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      color: #991b1b;
+      font-size: 13px;
+      font-weight: 600;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+      }
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- LOGIN VIEW -->
+  <div id="login-view">
+    <div class="login-box">
+      <div class="login-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <h2>Ayush Admin Panel</h2>
+      <p class="subtitle">Toxic Security Vault · Restricted Access</p>
+
+      <div id="lockout-banner" class="lockout-alert">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span id="lockout-timer">Too many attempts. Locked for 180s</span>
+      </div>
+
+      <div id="login-error" style="display:none; background:#fef2f2; border:1px solid #fecaca; color:#dc2626; padding:10px 14px; border-radius:10px; font-size:13px; font-weight:600; margin-bottom:16px;">
+        Invalid username or password
+      </div>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div style="text-align: left; margin-bottom: 14px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">Username</label>
+          <input type="text" id="admin-user" class="input" placeholder="Enter username" autocomplete="username" required>
+        </div>
+
+        <div style="text-align: left; margin-bottom: 22px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">Password</label>
+          <div style="position:relative;">
+            <input type="password" id="admin-pass" class="input" style="padding-right:42px;" placeholder="Enter password" autocomplete="current-password" required>
+            <button type="button" onclick="togglePassVisibility()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-sub); cursor:pointer; padding:4px;">
+              <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:14px; border-radius:12px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+          Authenticate &amp; Access Vault
+        </button>
+      </form>
+
+      <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); font-size:12px; color:var(--text-sub); display:flex; align-items:center; justify-content:center; gap:6px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span>End-to-End Cryptographic Security Guard</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div id="admin-view">
+    <div class="container">
+      <!-- Top Navbar -->
+      <header class="navbar">
+        <div class="nav-brand">
+          <div class="nav-logo">A</div>
+          <div>
+            <div class="nav-title">Ayush Admin Vault · /toxic</div>
+            <div class="nav-tag">Real-Time Firebase URLs Monitor &amp; History</div>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <a href="/" class="btn btn-secondary btn-sm" title="Go to User Panel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Open Ayush Panel
+          </a>
+          <button onclick="openSettingsModal()" class="btn btn-secondary btn-sm" title="Security Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Security
+          </button>
+          <button onclick="handleLogout()" class="btn btn-danger btn-sm" title="End Session">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <!-- KPI Stat Cards -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#eff6ff; color:#2563eb;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+          </div>
+          <div>
+            <div id="stat-total" class="stat-num">0</div>
+            <div class="stat-label">Total Vaulted URLs</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#ecfdf5; color:#059669;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><path d="M8.5 16.429a5 5 0 0 1 7 0"></path></svg>
+          </div>
+          <div>
+            <div id="stat-active" class="stat-num">0</div>
+            <div class="stat-label">Active In Panel</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fffbeb; color:#b45309;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+          </div>
+          <div>
+            <div id="stat-historic" class="stat-num">0</div>
+            <div class="stat-label">Removed / Preserved</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#f3e8ff; color:#7e22ce;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div>
+            <div id="stat-healthy" class="stat-num">0</div>
+            <div class="stat-label">Verified Online RTDBs</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="vault-search" class="input" placeholder="Search by Firebase URL, Key or Date..." oninput="renderVault()">
+        </div>
+
+        <div class="filter-tabs">
+          <button class="tab-btn active" data-filter="all" onclick="setFilter('all', this)">All (<span id="count-all">0</span>)</button>
+          <button class="tab-btn" data-filter="active" onclick="setFilter('active', this)">Active (<span id="count-active">0</span>)</button>
+          <button class="tab-btn" data-filter="historic" onclick="setFilter('historic', this)">Preserved / Removed (<span id="count-historic">0</span>)</button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button onclick="copyAllUrls()" class="btn btn-secondary btn-sm" title="Copy all URLs">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+            Copy All URLs
+          </button>
+          <button onclick="exportVaultCSV()" class="btn btn-secondary btn-sm" title="Download CSV">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export CSV
+          </button>
+          <button onclick="openManualAddModal()" class="btn btn-primary btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+            Add URL
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Vault Table -->
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th>Firebase Database URL</th>
+              <th>Auth Key / Secret</th>
+              <th>First Logged</th>
+              <th>Source</th>
+              <th>Panel Status</th>
+              <th>Health / Ping</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="vault-tbody">
+            <!-- Dynamic Rows -->
+          </tbody>
+        </table>
+        <div id="vault-empty" class="empty-state" style="display:none;">
+          <div class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+          </div>
+          <div style="font-weight:700; color:var(--text-main); font-size:15px; margin-bottom:4px;">No Firebase URLs In Vault Yet</div>
+          <div style="font-size:13px;">Any Firebase URL connected or entered on the website will instantly appear here forever, even after logout!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL ADD MODAL -->
+  <div id="modal-manual-add" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Manually Add Firebase URL</h3>
+        <button class="modal-close" onclick="closeModal('modal-manual-add')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form onsubmit="handleManualAdd(event)">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Firebase RTDB URL</label>
+          <input type="url" id="manual-url" class="input" placeholder="https://your-app.firebaseio.com" required>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Auth Secret / Key (Optional)</label>
+          <input type="text" id="manual-key" class="input" placeholder="Optional database key or secret">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-manual-add')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save to Vault</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="modal-settings" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Admin Security Settings</h3>
+        <button class="modal-close" onclick="closeModal('modal-settings')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form onsubmit="handleUpdateCredentials(event)">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Admin Username</label>
+          <input type="text" id="settings-user" class="input" required>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">New Password</label>
+          <input type="password" id="settings-pass" class="input" placeholder="Leave blank to keep current">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button type="button" class="btn btn-danger btn-sm" onclick="clearAllVaultWithConfirmation()">
+            Wipe Vault Clean
+          </button>
+          <div style="display:flex; gap:10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modal-settings')">Close</button>
+            <button type="submit" class="btn btn-primary">Update Credentials</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span id="toast-text">Action completed</span>
+  </div>
+
+  <script>
+    // ─── KEYS & CONFIG ───
+    const VAULT_KEY = "ayush_toxic_vault";
+    const FLIXY_KEY = "flixy_accounts";
+    const AUTH_CREDS_KEY = "ayush_admin_creds";
+    const SESSION_KEY = "ayush_admin_session";
+    const LOCKOUT_KEY = "ayush_admin_lockout";
+
+    // Salted cryptographic hash configuration (ZERO plain text credentials in source code!)
+    const AUTH_SALT = "ayush_sec_99x#";
+    const DEFAULT_USER_HASHES = [
+      "58a1eb2c9c4e1c343c8a23f6d0a18bd9da233543daf50646e4e784ae5aa56ca1", // user 1
+      "9ef1a61d6045b7343bb2871aba6d5e04e776401d981fe9b5eda2c18d83a424ad"  // user 2
+    ];
+    const DEFAULT_PASS_HASH = "38c9e9cda53fb283bbbd889029d63b723a0db1f0c2786775dd19bd73bf36d2f9";
+
+    let currentFilter = "all";
+    let healthCache = {};
+
+    // ─── CRYPTOGRAPHIC UTILS ───
+    async function sha256Salted(text) {
+      const enc = new TextEncoder();
+      const buf = await crypto.subtle.digest("SHA-256", enc.encode(AUTH_SALT + text));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toast-text").textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+
+    async function copyToClipboard(text, label = "Copied to clipboard!") {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast(label);
+      } catch (_) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast(label);
+      }
+    }
+
+    // ─── AUTHENTICATION & SECURITY ───
+    function getStoredCreds() {
+      try {
+        const raw = localStorage.getItem(AUTH_CREDS_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (_) {}
+      return null;
+    }
+
+    function checkLockout() {
+      try {
+        const raw = localStorage.getItem(LOCKOUT_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (data.attempts >= 5) {
+          const now = Date.now();
+          const remaining = Math.ceil((data.lockUntil - now) / 1000);
+          if (remaining > 0) {
+            document.getElementById("lockout-banner").style.display = "flex";
+            document.getElementById("lockout-timer").textContent = `Too many failed attempts. Locked for ${remaining}s`;
+            document.getElementById("btn-login-submit").disabled = true;
+            return true;
+          } else {
+            localStorage.removeItem(LOCKOUT_KEY);
+            document.getElementById("lockout-banner").style.display = "none";
+            document.getElementById("btn-login-submit").disabled = false;
+            return false;
+          }
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    function recordFailedAttempt() {
+      try {
+        const raw = localStorage.getItem(LOCKOUT_KEY);
+        let data = raw ? JSON.parse(raw) : { attempts: 0, lockUntil: 0 };
+        data.attempts += 1;
+        if (data.attempts >= 5) {
+          data.lockUntil = Date.now() + 180 * 1000; // 3 min lockout
+        }
+        localStorage.setItem(LOCKOUT_KEY, JSON.stringify(data));
+      } catch (_) {}
+      checkLockout();
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      if (checkLockout()) return;
+
+      const user = document.getElementById("admin-user").value.trim();
+      const pass = document.getElementById("admin-pass").value;
+      const errorDiv = document.getElementById("login-error");
+
+      // 1. First try Vercel Serverless Function (Backend validation - zero code in browser)
+      try {
+        const res = await fetch("/api/toxic", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user, pass })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success) {
+            errorDiv.style.display = "none";
+            localStorage.removeItem(LOCKOUT_KEY);
+            sessionStorage.setItem(SESSION_KEY, data.token || ("tok_" + Date.now()));
+            showAdminView();
+            showToast("Authenticated successfully!");
+            return;
+          }
+        }
+      } catch (_) {
+        // Fallback to client-side cryptographic salted hash verification
+      }
+
+      // 2. Client-side salted hash verification (if running static or offline)
+      const inputUserHash = await sha256Salted(user.toLowerCase());
+      const inputPassHash = await sha256Salted(pass);
+
+      const customCreds = getStoredCreds();
+      let isValid = false;
+
+      if (customCreds) {
+        const userMatches = (customCreds.userHash === inputUserHash);
+        const passMatches = (customCreds.passHash === inputPassHash);
+        isValid = userMatches && passMatches;
+      } else {
+        const userMatches = DEFAULT_USER_HASHES.includes(inputUserHash);
+        const passMatches = (inputPassHash === DEFAULT_PASS_HASH);
+        isValid = userMatches && passMatches;
+      }
+
+      if (isValid) {
+        errorDiv.style.display = "none";
+        localStorage.removeItem(LOCKOUT_KEY);
+        const sessionToken = "tok_" + Date.now() + "_" + Math.random().toString(36).substring(2, 10);
+        sessionStorage.setItem(SESSION_KEY, sessionToken);
+        showAdminView();
+        showToast("Authenticated successfully!");
+      } else {
+        errorDiv.style.display = "block";
+        errorDiv.textContent = "Invalid username or password. Please try again.";
+        recordFailedAttempt();
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem(SESSION_KEY);
+      document.getElementById("admin-pass").value = "";
+      document.getElementById("admin-view").style.display = "none";
+      document.getElementById("login-view").style.display = "flex";
+      showToast("Logged out from admin panel");
+    }
+
+    function checkAuth() {
+      const token = sessionStorage.getItem(SESSION_KEY);
+      if (token) {
+        showAdminView();
+      } else {
+        document.getElementById("login-view").style.display = "flex";
+        document.getElementById("admin-view").style.display = "none";
+        checkLockout();
+      }
+    }
+
+    function showAdminView() {
+      document.getElementById("login-view").style.display = "none";
+      document.getElementById("admin-view").style.display = "block";
+      syncFlixyAccountsToVault();
+      renderVault();
+    }
+
+    function togglePassVisibility() {
+      const passInput = document.getElementById("admin-pass");
+      passInput.type = (passInput.type === "password") ? "text" : "password";
+    }
+
+    // ─── VAULT DATA MANAGEMENT ───
+    function getVault() {
+      try {
+        const raw = localStorage.getItem(VAULT_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveVault(list) {
+      localStorage.setItem(VAULT_KEY, JSON.stringify(list));
+      renderVault();
+    }
+
+    function getActiveFlixyUrls() {
+      try {
+        const raw = localStorage.getItem(FLIXY_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) return [];
+        return list.map(item => (typeof item === "string" ? item : item.url)).filter(Boolean).map(u => u.trim().toLowerCase());
+      } catch (_) {
+        return [];
+      }
+    }
+
+    // Auto-sync any existing accounts currently in flixy_accounts
+    function syncFlixyAccountsToVault() {
+      try {
+        const raw = localStorage.getItem(FLIXY_KEY);
+        const flixy = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(flixy) || !flixy.length) return;
+
+        const vault = getVault();
+        let changed = false;
+
+        flixy.forEach(item => {
+          if (!item) return;
+          const url = (typeof item === "string" ? item : item.url || "").trim();
+          if (!url) return;
+          const key = (typeof item === "object" && item.key) ? String(item.key).trim() : "";
+          const exists = vault.some(v => v.url.toLowerCase() === url.toLowerCase());
+          if (!exists) {
+            vault.unshift({
+              id: "fb_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7),
+              url: url,
+              key: key,
+              date: (item.date) || new Date().toLocaleString(),
+              lastSeen: new Date().toLocaleString(),
+              source: "Panel Active Session"
+            });
+            changed = true;
+          }
+        });
+
+        if (changed) {
+          localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
+        }
+      } catch (_) {}
+    }
+
+    function renderVault() {
+      const vault = getVault();
+      const activeUrls = getActiveFlixyUrls();
+      const search = (document.getElementById("vault-search")?.value || "").toLowerCase().trim();
+      const tbody = document.getElementById("vault-tbody");
+      const emptyState = document.getElementById("vault-empty");
+
+      // Compute stats
+      let activeCount = 0;
+      let historicCount = 0;
+
+      vault.forEach(item => {
+        const isActive = activeUrls.includes(item.url.toLowerCase());
+        if (isActive) activeCount++;
+        else historicCount++;
+      });
+
+      document.getElementById("stat-total").textContent = vault.length;
+      document.getElementById("stat-active").textContent = activeCount;
+      document.getElementById("stat-historic").textContent = historicCount;
+
+      document.getElementById("count-all").textContent = vault.length;
+      document.getElementById("count-active").textContent = activeCount;
+      document.getElementById("count-historic").textContent = historicCount;
+
+      // Filter
+      let filtered = vault.filter(item => {
+        const isActive = activeUrls.includes(item.url.toLowerCase());
+        if (currentFilter === "active" && !isActive) return false;
+        if (currentFilter === "historic" && isActive) return false;
+        if (search) {
+          const matchUrl = item.url.toLowerCase().includes(search);
+          const matchKey = (item.key || "").toLowerCase().includes(search);
+          const matchDate = (item.date || "").toLowerCase().includes(search);
+          return matchUrl || matchKey || matchDate;
+        }
+        return true;
+      });
+
+      if (!filtered.length) {
+        tbody.innerHTML = "";
+        emptyState.style.display = "block";
+        return;
+      }
+
+      emptyState.style.display = "none";
+      tbody.innerHTML = filtered.map((item, index) => {
+        const isActive = activeUrls.includes(item.url.toLowerCase());
+        const health = healthCache[item.url] || null;
+
+        let healthHtml = `<button onclick="pingFirebase('${item.url}')" class="btn btn-secondary btn-sm" style="padding:3px 8px; font-size:11px;">Test Ping</button>`;
+        if (health) {
+          if (health.status === "online") {
+            healthHtml = `<span class="badge badge-success" title="${health.info}">🟢 Online (${health.ms}ms)</span>`;
+          } else if (health.status === "auth_req") {
+            healthHtml = `<span class="badge badge-warning" title="${health.info}">🔒 Auth Required</span>`;
+          } else {
+            healthHtml = `<span class="badge badge-danger" title="${health.info}">❌ Unreachable</span>`;
+          }
+        }
+
+        return `
+          <tr>
+            <td style="color:var(--text-sub); font-weight:600;">${index + 1}</td>
+            <td>
+              <div class="url-cell">
+                <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="url-link">${escapeHtml(item.url)}</a>
+                <button onclick="copyToClipboard('${item.url}')" class="btn btn-secondary btn-sm" style="padding:2px 6px;" title="Copy URL">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                </button>
+              </div>
+            </td>
+            <td>
+              ${item.key ? `
+                <div class="key-cell">
+                  <span id="key-${item.id}">••••••••</span>
+                  <button onclick="toggleKeyReveal('${item.id}', '${escapeAttr(item.key)}')" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:0 2px;" title="Reveal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  </button>
+                  <button onclick="copyToClipboard('${escapeAttr(item.key)}')" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:0 2px;" title="Copy Key">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                  </button>
+                </div>
+              ` : `<span style="color:var(--text-sub); font-size:12px;">_none_</span>`}
+            </td>
+            <td style="color:var(--text-muted); font-size:12px; white-space:nowrap;">${escapeHtml(item.date || "Unknown")}</td>
+            <td>
+              <span class="badge badge-neutral">${escapeHtml(item.source || "Direct Login")}</span>
+            </td>
+            <td>
+              ${isActive ? `
+                <span class="badge badge-success">
+                  <span style="width:6px; height:6px; border-radius:50%; background:#10b981;"></span>
+                  Active in Panel
+                </span>
+              ` : `
+                <span class="badge badge-warning" title="Preserved in Vault even after removal / logout!">
+                  <span style="width:6px; height:6px; border-radius:50%; background:#f59e0b;"></span>
+                  Preserved / Removed
+                </span>
+              `}
+            </td>
+            <td>${healthHtml}</td>
+            <td style="text-align: right;">
+              <div class="actions-cell" style="justify-content: flex-end;">
+                ${!isActive ? `
+                  <button onclick="restoreToFlixy('${escapeAttr(item.url)}', '${escapeAttr(item.key || "")}')" class="btn btn-primary btn-sm" title="Add this URL back into User Panel">
+                    Restore to Panel
+                  </button>
+                ` : `
+                  <button onclick="removeFromFlixy('${escapeAttr(item.url)}')" class="btn btn-secondary btn-sm" title="Remove from active panel (remains in vault!)">
+                    Disconnect
+                  </button>
+                `}
+                <button onclick="deleteFromVault('${item.id}')" class="btn btn-danger btn-sm" title="Permanently delete from vault">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function toggleKeyReveal(id, key) {
+      const el = document.getElementById("key-" + id);
+      if (!el) return;
+      if (el.textContent === "••••••••") {
+        el.textContent = key;
+      } else {
+        el.textContent = "••••••••";
+      }
+    }
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderVault();
+    }
+
+    // ─── HEALTH CHECK PING ───
+    async function pingFirebase(url) {
+      const start = Date.now();
+      showToast("Pinging " + url.replace(/^https?:\/\//, "").split(".")[0] + "...");
+      try {
+        let cleanUrl = url.replace(/\/$/, "");
+        if (!cleanUrl.startsWith("http")) cleanUrl = "https://" + cleanUrl;
+        const testEndpoint = `${cleanUrl}/.json?shallow=true`;
+
+        const res = await fetch(testEndpoint, { method: "GET", mode: "cors" });
+        const ms = Date.now() - start;
+
+        if (res.ok) {
+          healthCache[url] = { status: "online", ms: ms, info: "HTTP " + res.status };
+        } else if (res.status === 401 || res.status === 403) {
+          healthCache[url] = { status: "auth_req", ms: ms, info: "Protected (Auth Required)" };
+        } else {
+          healthCache[url] = { status: "error", ms: ms, info: "HTTP " + res.status };
+        }
+      } catch (e) {
+        healthCache[url] = { status: "error", ms: 0, info: "Connection blocked or CORS error" };
+      }
+
+      // Update healthy count
+      const healthy = Object.values(healthCache).filter(h => h.status === "online" || h.status === "auth_req").length;
+      document.getElementById("stat-healthy").textContent = healthy;
+      renderVault();
+    }
+
+    // ─── PANEL INTEGRATION (RESTORE / DISCONNECT) ───
+    function restoreToFlixy(url, key) {
+      try {
+        const raw = localStorage.getItem(FLIXY_KEY);
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+        const exists = list.some(item => (typeof item === "string" ? item : item.url) === url);
+        if (!exists) {
+          list.push({ id: Date.now(), url: url, key: key, date: new Date().toLocaleString() });
+          localStorage.setItem(FLIXY_KEY, JSON.stringify(list));
+        }
+        showToast("Restored to active panel!");
+        renderVault();
+      } catch (_) {
+        showToast("Error updating panel session");
+      }
+    }
+
+    function removeFromFlixy(url) {
+      try {
+        const raw = localStorage.getItem(FLIXY_KEY);
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+        list = list.filter(item => (typeof item === "string" ? item : item.url) !== url);
+        localStorage.setItem(FLIXY_KEY, JSON.stringify(list));
+        showToast("Disconnected from active panel (preserved in vault)");
+        renderVault();
+      } catch (_) {
+        showToast("Error disconnecting from panel");
+      }
+    }
+
+    function deleteFromVault(id) {
+      if (!confirm("Are you sure you want to remove this URL permanently from the vault?")) return;
+      let vault = getVault();
+      vault = vault.filter(item => item.id !== id);
+      saveVault(vault);
+      showToast("URL deleted from vault");
+    }
+
+    function clearAllVaultWithConfirmation() {
+      if (!confirm("⚠️ WARNING: This will permanently wipe ALL Firebase URLs stored in the vault! Continue?")) return;
+      if (!confirm("Final confirmation: This cannot be undone. Wipe all?")) return;
+      localStorage.removeItem(VAULT_KEY);
+      renderVault();
+      closeModal("modal-settings");
+      showToast("Vault completely wiped");
+    }
+
+    // ─── BULK EXPORT & COPY ───
+    function copyAllUrls() {
+      const vault = getVault();
+      if (!vault.length) return showToast("No URLs to copy");
+      const text = vault.map(v => v.url).join("\n");
+      copyToClipboard(text, `Copied ${vault.length} URLs to clipboard!`);
+    }
+
+    function exportVaultCSV() {
+      const vault = getVault();
+      if (!vault.length) return showToast("Vault is empty");
+      const activeUrls = getActiveFlixyUrls();
+
+      let csv = "Index,Firebase URL,Key,First Connected,Source,Status\n";
+      vault.forEach((item, i) => {
+        const isActive = activeUrls.includes(item.url.toLowerCase()) ? "Active" : "Removed / Historic";
+        csv += `"${i + 1}","${item.url.replace(/"/g, '""')}","${(item.key || "").replace(/"/g, '""')}","${item.date || ""}","${item.source || ""}","${isActive}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ayush_toxic_vault_${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Vault exported as CSV");
+    }
+
+    // ─── MANUAL ADD ───
+    function openManualAddModal() {
+      document.getElementById("manual-url").value = "";
+      document.getElementById("manual-key").value = "";
+      document.getElementById("modal-manual-add").classList.add("active");
+    }
+
+    function handleManualAdd(e) {
+      e.preventDefault();
+      const url = document.getElementById("manual-url").value.trim();
+      const key = document.getElementById("manual-key").value.trim();
+      if (!url) return;
+
+      const vault = getVault();
+      vault.unshift({
+        id: "fb_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7),
+        url: url,
+        key: key,
+        date: new Date().toLocaleString(),
+        lastSeen: new Date().toLocaleString(),
+        source: "Admin Manual Entry"
+      });
+      saveVault(vault);
+      closeModal("modal-manual-add");
+      showToast("Added to vault successfully");
+    }
+
+    // ─── SETTINGS MODAL & CREDENTIALS ───
+    function openSettingsModal() {
+      const creds = getStoredCreds();
+      document.getElementById("settings-user").value = creds.user;
+      document.getElementById("settings-pass").value = "";
+      document.getElementById("modal-settings").classList.add("active");
+    }
+
+    function openSettingsModal() {
+      document.getElementById("settings-user").value = "";
+      document.getElementById("settings-pass").value = "";
+      document.getElementById("modal-settings").classList.add("active");
+    }
+
+    async function handleUpdateCredentials(e) {
+      e.preventDefault();
+      const newUser = document.getElementById("settings-user").value.trim();
+      const newPass = document.getElementById("settings-pass").value;
+
+      if (!newUser) return;
+      const creds = {};
+      creds.userHash = await sha256Salted(newUser.toLowerCase());
+
+      if (newPass) {
+        creds.passHash = await sha256Salted(newPass);
+      } else {
+        const oldCreds = getStoredCreds();
+        creds.passHash = oldCreds ? oldCreds.passHash : DEFAULT_PASS_HASH;
+      }
+
+      localStorage.setItem(AUTH_CREDS_KEY, JSON.stringify(creds));
+      closeModal("modal-settings");
+      showToast("Credentials updated securely!");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("active");
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(str) {
+      return String(str || "").replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    }
+
+    // ─── INTERVALS & INIT ───
+    setInterval(() => {
+      if (document.getElementById("admin-view").style.display === "block") {
+        syncFlixyAccountsToVault();
+        renderVault();
+      }
+    }, 4000);
+
+    // Initial check
+    checkAuth();
+  </script>
+</body>
+</html>
